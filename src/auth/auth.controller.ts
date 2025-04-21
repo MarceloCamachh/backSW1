@@ -1,5 +1,6 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -12,16 +13,15 @@ export class AuthController {
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const jwt = await this.authService.generateJwt(req.user);
+    const { name, picture } = req.user;
 
-    // Opción 1: Devuelves directamente el token (ideal para desarrollo)
-    return {
-      user: req.user,
-      token: jwt.access_token,
-    };
+    const redirectUrl = new URL(`${process.env.FRONTEND_URL}/auth/callback`);
+    redirectUrl.searchParams.set('token', jwt.access_token);
+    redirectUrl.searchParams.set('name', name);
+    redirectUrl.searchParams.set('picture', picture);
 
-    // Opción 2: Rediriges al frontend con el token en la URL (ejemplo)
-    // return res.redirect(`http://localhost:5173/auth/callback?token=${jwt.access_token}`);
+    return res.redirect(redirectUrl.toString());
   }
 }
