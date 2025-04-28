@@ -15,10 +15,11 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const jwt = await this.authService.generateJwt(req.user);
-    const { name, picture } = req.user;
+    const { email, name, picture } = req.user;
 
     const redirectUrl = new URL(`${process.env.FRONTEND_URL}/auth/callback`);
     redirectUrl.searchParams.set('token', jwt.access_token);
+    redirectUrl.searchParams.set('email', email);
     redirectUrl.searchParams.set('name', name);
     redirectUrl.searchParams.set('picture', picture);
 

@@ -46,30 +46,42 @@ import {
   
     @SubscribeMessage('element:update')
     handleElementUpdate(
-      @MessageBody() data: { roomId: string; frame: any },
-      @ConnectedSocket() client: Socket,
+    @MessageBody() data: { roomId: string; frame: any },
+    @ConnectedSocket() client: Socket,
     ) {
-      console.log("Update recibido:", data);
-      client.broadcast.to(data.roomId).emit('element:update', data.frame);
-      client.emit('element:update', data.frame);
+    console.log("Update recibido:", data);
+    client.broadcast.to(data.roomId).emit('element:update', {
+        roomId: data.roomId,
+        frame: data.frame,
+    });
+    client.emit('element:update', {
+        roomId: data.roomId,
+        frame: data.frame,
+    });
     }
   
     @SubscribeMessage('element:add')
-    handleElementAdd(
-      @MessageBody() data: { roomId: string; frame: any },
-      @ConnectedSocket() client: Socket,
-    ) {
-        console.log("Add recibido:", data);
-      client.to(data.roomId).emit('element:add', data.frame);
-    }
-  
-    @SubscribeMessage('element:delete')
-    handleElementDelete(
-      @MessageBody() data: { roomId: string; elementId: string },
-      @ConnectedSocket() client: Socket,
-    ) {
-        console.log("Delete recibido:", data);
-      client.to(data.roomId).emit('element:delete', data.elementId);
-    }
+handleElementAdd(
+  @MessageBody() data: { roomId: string; frame: any },
+  @ConnectedSocket() client: Socket,
+) {
+  console.log("Add recibido:", data);
+  client.to(data.roomId).emit('element:add', {
+    roomId: data.roomId,
+    frame: data.frame,
+  });
+}
+
+@SubscribeMessage('element:delete')
+handleElementDelete(
+  @MessageBody() data: { roomId: string; elementId: string },
+  @ConnectedSocket() client: Socket,
+) {
+  console.log("Delete recibido:", data);
+  client.to(data.roomId).emit('element:delete', {
+    roomId: data.roomId,
+    elementId: data.elementId,
+  });
+}
   }
   
